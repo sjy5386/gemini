@@ -1,16 +1,39 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import hashlib
+import os
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def search(dirname):
+    arr = []
+    for (path, dir, files) in os.walk(dirname):
+        for filename in files:
+            arr.append(os.path.join(path, filename))
+    return arr
 
 
-# Press the green button in the gutter to run the script.
+def update(files):
+    dic = {}
+    for filename in files:
+        f = open(filename, mode='rb')
+        data = f.read()
+        f.close()
+        m = get_sha512(data)
+        if m in dic.keys():
+            dic[m].append(filename)
+        else:
+            dic[m] = [filename]
+    return dic
+
+
+def get_sha512(data):
+    m = hashlib.sha512()
+    m.update(data)
+    return m.digest()
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    dirname = input("Dirname: ")
+    files = search(dirname)
+    dic = update(files)
+    for key in dic.keys():
+        if len(dic[key]) > 1:
+            print(dic[key])
